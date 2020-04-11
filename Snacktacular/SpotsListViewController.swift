@@ -24,13 +24,50 @@
 //}
 
 import UIKit
-import CoreLocation
+import CoreLocation // when using location! always import this
 
 class SpotsListViewController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
+    var spots: Spots!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView.delegate = self
+        tableView.dataSource = self
+        
+        spots = Spots() // empty class for spots
+        spots.spotArray.append(Spot(name: "El Pelon", address: "Comm. Ave", coordinate: CLLocationCoordinate2D(), averageRating: 0.0, numberOfReviews: 0, postingUserID: "", documentID: ""))
+        spots.spotArray.append(Spot(name: "Shake Shack", address: "Chestnut Hill", coordinate: CLLocationCoordinate2D(), averageRating: 0.0, numberOfReviews: 0, postingUserID: "", documentID: ""))
+        spots.spotArray.append(Spot(name: "Pino's Pizza", address: "Cleveland Circle", coordinate: CLLocationCoordinate2D(), averageRating: 0.0, numberOfReviews: 0, postingUserID: "", documentID: ""))
+        
+    }
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "ShowSpot" {
+            let destination = segue.destination as! SpotDetailViewController
+            let selectedIndexPath = tableView.indexPathForSelectedRow! // force unwrapp because I know that this is the segway
+            destination.spot = spots.spotArray[selectedIndexPath.row]
+        } else { // clicking plus
+            if let selectedIndexPath = tableView.indexPathForSelectedRow {
+                tableView.deselectRow(at: selectedIndexPath, animated: true)
+            }
+        }
+        
+    }
+}
+
+extension SpotsListViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return spots.spotArray.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell =  tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! SpotsTableViewCell // make sure it's a subclass of SpotsTableViewCell!
+        cell.nameLabel.text = spots.spotArray[indexPath.row].name // indexPath.row = gives element of spot
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 60 // setting the hieght of the table
     }
 }
